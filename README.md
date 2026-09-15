@@ -7,6 +7,7 @@
 A real TUI — not a chat panel reimplementation. Your terminal workflow, one click away from your code.
 
 [![CI](https://github.com/yicLionel/pi-for-vscode/actions/workflows/ci.yml/badge.svg)](https://github.com/yicLionel/pi-for-vscode/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/yicLionel/pi-for-vscode?sort=semver)](https://github.com/yicLionel/pi-for-vscode/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![VS Code](https://img.shields.io/badge/VS%20Code-%5E1.85-007ACC.svg)](https://code.visualstudio.com)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey.svg)](#requirements)
@@ -61,22 +62,31 @@ If `pi` is somewhere unusual, point the extension at it:
 
 ## Install
 
-**From the Marketplace** — search for **Pi for VS Code** in the Extensions view.
+Pi for VS Code is distributed through **GitHub Releases** — there is no Marketplace listing.
 
-**From a VSIX**
+**1. Download the VSIX** from the [latest release](https://github.com/yicLionel/pi-for-vscode/releases/latest)
+(`pi-for-vscode-<version>.vsix`). Optionally check it against `SHA256SUMS.txt` from the same release:
+
+```bash
+shasum -a 256 -c SHA256SUMS.txt
+```
+
+**2. Install it**
 
 ```bash
 code --install-extension pi-for-vscode-0.1.0.vsix
 ```
 
-**From source**
+Then reload the window (<kbd>⌘⇧P</kbd> → *Developer: Reload Window*).
+
+**Or build from source**
 
 ```bash
 git clone https://github.com/yicLionel/pi-for-vscode.git
 cd pi-for-vscode
 npm install
 npm run compile
-# then press F5 in VS Code, or:
+# press F5 in VS Code, or:
 npm run package && code --install-extension pi-for-vscode-0.1.0.vsix
 ```
 
@@ -197,6 +207,18 @@ binary in a PTY, activates the bundled extension against a stubbed `vscode`
 module, and renders the webview bundle in headless Chrome. Tests that need `pi`
 or a POSIX shell skip rather than fail, so the suite runs unchanged on CI.
 
+### Cutting a release
+
+Bump `version` in `package.json`, then push a matching tag — the
+[release workflow](.github/workflows/release.yml) runs the whole suite, packages
+the VSIX and attaches it (plus `SHA256SUMS.txt`) to a GitHub Release:
+
+```bash
+git tag v0.1.1 && git push --tags
+```
+
+The workflow refuses to release if the tag and `package.json` version disagree.
+
 | Suite | Covers |
 | --- | --- |
 | `scripts/smoke.mjs` | TTY-ness, ANSI passthrough, PTY resize (`stty size`), real `pi --version` through the resolved interpreter |
@@ -280,15 +302,19 @@ Built on [Pi](https://pi.dev), [xterm.js](https://xtermjs.org) and
 
 ## 安装
 
-**应用商店** —— 在扩展面板搜索 **Pi for VS Code**。
+本扩展通过 **GitHub Releases** 分发（没有上架插件市场）。
 
-**从 VSIX 安装**
+**1. 下载 VSIX** —— 到 [最新 release](https://github.com/yicLionel/pi-for-vscode/releases/latest) 下载 `pi-for-vscode-<版本>.vsix`。可选：用同目录的 `SHA256SUMS.txt` 校验完整性。
+
+**2. 安装**
 
 ```bash
 code --install-extension pi-for-vscode-0.1.0.vsix
 ```
 
-**从源码构建**
+然后重载窗口（<kbd>⌘⇧P</kbd> → *Developer: Reload Window*）。
+
+**或从源码构建**
 
 ```bash
 git clone https://github.com/yicLionel/pi-for-vscode.git
