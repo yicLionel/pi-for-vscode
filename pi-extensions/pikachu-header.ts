@@ -102,7 +102,9 @@ function paintRun(topChar: string, bottomChar: string, count: number, mode: Colo
 }
 
 function renderSprite(theme: Theme, width: number): string[] | undefined {
-  if (width < SPRITE_WIDTH) return undefined;
+  // Leave a column of slack so a terminal that treats block glyphs as
+  // double-width cannot push a sprite line over the edge.
+  if (width < SPRITE_WIDTH + 2) return undefined;
   const mode = theme.getColorMode();
   const indent = " ".repeat(Math.max(0, Math.floor((width - SPRITE_WIDTH) / 2)));
   const lines: string[] = [];
@@ -126,11 +128,30 @@ function renderSprite(theme: Theme, width: number): string[] | undefined {
   return lines;
 }
 
-const ANSI = /\x1b\[[0-9;]*m/g;
-const visibleWidth = (text: string): number => text.replace(ANSI, "").length;
+/**
+ * Header text tiers, longest first. ASCII only, so a string's visible width is
+ * exactly its length and clipping is a plain slice.
+ *
+ * pi treats a custom header line wider than the terminal as fatal:
+ *   "Rendered line N exceeds terminal width", then it exits. So every line
+ * returned from render() must be clipped to the width we are handed.
+ */
+const HINTS: readonly string[] = [
+  "escape interrupt - / commands - ! bash - ctrl+o more",
+  "esc interrupt - / commands - ctrl+o more",
+  "esc - / cmds - ctrl+o more",
+  "esc - / cmds - ctrl+o",
+];
 
-function center(text: string, width: number): string {
-  return " ".repeat(Math.max(0, Math.floor((width - visibleWidth(text)) / 2))) + text;
+function clip(text: string, width: number): string {
+  return text.length <= width ? text : text.slice(0, Math.max(0, width));
+}
+
+/** Pads to centre, clipping first. `style` is applied after measuring. */
+function centered(text: string, width: number, style: (value: string) => string): string {
+  const clipped = clip(text, width);
+  if (!clipped) return "";
+  return " ".repeat(Math.max(0, Math.floor((width - clipped.length) / 2))) + style(clipped);
 }
 
 export default function (pi: ExtensionAPI) {
@@ -147,12 +168,15 @@ export default function (pi: ExtensionAPI) {
           lines.push(...art);
         } else {
           lines.push("");
-          lines.push(center(theme.fg("muted", "pi"), width));
+          lines.push(centered("pi", width, (t) => theme.fg("muted", t)));
         }
 
         lines.push("");
-        lines.push(center(theme.fg("accent", `pi v${VERSION}`), width));
-        lines.push(center(theme.fg("dim", "escape interrupt  ·  / commands  ·  ! bash  ·  ctrl+o more"), width));
+        lines.push(centered(`pi v${VERSION}`, width, (t) => theme.fg("accent", t)));
+
+        const hint = HINTS.find((candidate) => candidate.length <= width);
+        if (hint) lines.push(centered(hint, width, (t) => theme.fg("dim", t)));
+
         lines.push("");
         return lines;
       },
