@@ -1,0 +1,161 @@
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--vscode-terminal-background, var(--vscode-editor-background));
+}
+
+#pi-root {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 4px 2px 2px 6px;
+  box-sizing: border-box;
+  background: var(--vscode-terminal-background, var(--vscode-editor-background));
+}
+
+.pi-terminal {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.pi-terminal .xterm {
+  height: 100%;
+}
+
+.pi-terminal .xterm-viewport {
+  background: transparent !important;
+  scrollbar-width: thin;
+}
+
+/* ---------------------------------------------------------------- overlay */
+
+.pi-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+  background: color-mix(in srgb, var(--vscode-editor-background, #1e1e1e) 88%, transparent);
+  backdrop-filter: blur(1px);
+  z-index: 10;
+}
+
+.pi-overlay[hidden] {
+  display: none;
+}
+
+.pi-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 16px 18px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid var(--vscode-widget-border, var(--vscode-panel-border, rgba(128, 128, 128, 0.35)));
+  background: var(--vscode-editorWidget-background, var(--vscode-editor-background, #1e1e1e));
+  color: var(--vscode-editorWidget-foreground, var(--vscode-foreground));
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+}
+
+.pi-card-title {
+  font-size: 1.05em;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.pi-card-message {
+  font-size: 0.92em;
+  line-height: 1.45;
+  opacity: 0.9;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.pi-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.pi-card-actions:empty {
+  display: none;
+}
+
+.pi-button {
+  padding: 5px 12px;
+  border-radius: 4px;
+  border: 1px solid var(--vscode-button-border, transparent);
+  background: var(--vscode-button-secondaryBackground, rgba(128, 128, 128, 0.25));
+  color: var(--vscode-button-secondaryForeground, var(--vscode-foreground));
+  font-family: inherit;
+  font-size: 0.9em;
+  cursor: pointer;
+}
+
+.pi-button:hover {
+  background: var(--vscode-button-secondaryHoverBackground, rgba(128, 128, 128, 0.35));
+}
+
+.pi-button-primary {
+  background: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+}
+
+.pi-button-primary:hover {
+  background: var(--vscode-button-hoverBackground);
+}
+
+/* ------------------------------------------------------------ context menu */
+
+.pi-menu {
+  position: fixed;
+  z-index: 30;
+  min-width: 160px;
+  padding: 4px 0;
+  border-radius: 5px;
+  border: 1px solid var(--vscode-menu-border, var(--vscode-widget-border, rgba(128, 128, 128, 0.35)));
+  background: var(--vscode-menu-background, var(--vscode-editorWidget-background, #252526));
+  color: var(--vscode-menu-foreground, var(--vscode-foreground));
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.pi-menu[hidden] {
+  display: none;
+}
+
+.pi-menu-item {
+  display: block;
+  width: 100%;
+  padding: 4px 14px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: 0.9em;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pi-menu-item:hover:not(:disabled) {
+  background: var(--vscode-menu-selectionBackground, var(--vscode-list-activeSelectionBackground, #094771));
+  color: var(--vscode-menu-selectionForeground, var(--vscode-list-activeSelectionForeground, #ffffff));
+}
+
+.pi-menu-item:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.pi-menu-separator {
+  height: 1px;
+  margin: 4px 8px;
+  background: var(--vscode-menu-separatorBackground, rgba(128, 128, 128, 0.35));
+}

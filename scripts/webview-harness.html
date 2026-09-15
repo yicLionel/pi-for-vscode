@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Pi webview harness</title>
+    <link rel="stylesheet" href="../media/main.css" />
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      #result {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        z-index: 9999;
+        margin: 0;
+        font-size: 10px;
+        max-width: 100%;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Mirrors the DOM contract produced by src/webviewHtml.ts. -->
+    <div id="pi-root">
+      <div id="pi-terminal" class="pi-terminal" role="application"></div>
+      <div id="pi-overlay" class="pi-overlay" hidden>
+        <div class="pi-card">
+          <div class="pi-card-title" id="pi-overlay-title"></div>
+          <div class="pi-card-message" id="pi-overlay-message"></div>
+          <div class="pi-card-actions" id="pi-overlay-actions"></div>
+        </div>
+      </div>
+      <div id="pi-menu" class="pi-menu" hidden></div>
+    </div>
+
+    <script>
+      window.__messages = [];
+      window.__errors = [];
+      window.__result = null;
+
+      window.addEventListener('error', (event) => window.__errors.push(String(event.message)));
+      window.addEventListener('unhandledrejection', (event) => window.__errors.push('rejection: ' + String(event.reason)));
+
+      // Stand-in for the VS Code webview API.
+      window.acquireVsCodeApi = function acquireVsCodeApi() {
+        return {
+          postMessage: (message) => window.__messages.push(message),
+          getState: () => undefined,
+          setState: () => undefined,
+        };
+      };
+
+      // Force the DOM renderer so the rendered text is observable in the DOM.
+      const originalGetContext = HTMLCanvasElement.prototype.getContext;
+      HTMLCanvasElement.prototype.getContext = function getContext(type, ...args) {
+        if (String(type).startsWith('webgl')) return null;
+        return originalGetContext.call(this, type, ...args);
+      };
+    </script>
+
+    <script src="../media/main.js"></script>
+
+    <script>
+      const send = (data) => window.dispatchEvent(new MessageEvent('message', { data }));
+      const rows = () => document.querySelector('.xterm-rows');
+      const rowsText = () => (rows() ? rows().textContent : '');
+
+      function nextFrame() {
+        return new Promise((resolve) => requestAnimationFrame(() => resolve()));
+      }
+
+      async function wait(ms) {
+        await new Promise((resolve) => setTimeout(resolve, ms));
+        await nextFrame();
+        await nextFrame();
+      }
+
+      function overlay() {
+        return document.getElementById('pi-overlay');
+      }
+
+      async function run() {
+        const findings = {};
+        await wait(200);
+
+        findings.hasTerminal = Boolean(document.querySelector('.xterm'));
+        findings.hasRows = Boolean(rows());
+        findings.readyPosted = window.__messages.some((m) => m.type === 'ready');
+        findings.resizePosted = window.__messages.some((m) => m.type === 'resize' && m.cols > 0 && m.rows > 0);
+        findings.initialOverlayHidden = overlay().hidden;
+
+        // 1. Extension -> webview: launch sequence.
+        send({
+          type: 'init',
+          settings: { fontFamily: 'monospace', fontSize: 12, lineHeight: 1, cursorBlink: true, scrollback: 2000, fileLinks: true },
+          state: 'starting',
+          autoStart: true,
+        });
+        await wait(50);
+        findings.startingOverlayShown = overlay().hidden === false;
+
+        // 2. TUI starts streaming.
+        send({ type: 'state', state: 'running' });
+        send({ type: 'data', data: '\u001b[31mhello-pi\u001b[0m wrote src/app.ts:42\r\nsecond line\r\n' });
+        await wait(600);
+
+        const text = rowsText();
+        findings.renderedText = text;
+        findings.renderedHello = text.includes('hello-pi');
+        findings.renderedPath = text.includes('src/app.ts');
+        findings.renderedHasNoEscapeCodes = !text.includes('\u001b') && !text.includes('[31m');
+        findings.overlayHiddenWhileRunning = overlay().hidden === true;
+
+        // 3. Error state surfaces an actionable overlay.
+        send({ type: 'state', state: 'error', message: 'Pi was not found on PATH.' });
+        await wait(50);
+        findings.errorOverlayShown = overlay().hidden === false;
+        findings.errorOverlayTitle = document.getElementById('pi-overlay-title').textContent;
+        findings.errorOverlayButtons = document.querySelectorAll('#pi-overlay-actions button').length;
+
+        const button = document.querySelector('#pi-overlay-actions button');
+        if (button) button.click();
+        await wait(20);
+        findings.actionPosted = window.__messages.some((m) => m.type === 'action');
+
+        // 4. Context menu.
+        document
+          .getElementById('pi-terminal')
+          .dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 40, clientY: 40 }));
+        await wait(50);
+        const menu = document.getElementById('pi-menu');
+        findings.menuOpened = menu.hidden === false;
+        findings.menuItems = document.querySelectorAll('#pi-menu .pi-menu-item').length;
+        findings.menuHasRestart = [...document.querySelectorAll('#pi-menu .pi-menu-item')].some(
+          (item) => item.textContent === 'Restart Pi',
+        );
+
+        // 5. Pasting must reach the PTY as an input message.
+        const before = window.__messages.length;
+        send({ type: 'focus' });
+        document.dispatchEvent(new Event('visibilitychange'));
+        await wait(20);
+
+        findings.postedTypes = [...new Set(window.__messages.map((m) => m.type))];
+        findings.errors = window.__errors;
+        findings.messageDelta = window.__messages.length - before;
+
+        const pre = document.createElement('pre');
+        pre.id = 'result';
+        pre.textContent = 'RESULT_JSON:' + JSON.stringify(findings);
+        document.body.appendChild(pre);
+
+        window.__result = findings;
+      }
+
+      window.addEventListener('load', () => {
+        run().catch((error) => {
+          window.__result = { failed: true, message: String(error && error.stack ? error.stack : error) };
+        });
+      });
+    </script>
+  </body>
+</html>

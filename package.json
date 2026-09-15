@@ -1,0 +1,296 @@
+{
+  "name": "pi-for-vscode",
+  "displayName": "Pi for VS Code",
+  "description": "Run the Pi coding agent TUI in the VS Code sidebar or in an editor tab.",
+  "version": "0.1.0",
+  "publisher": "pi-for-vscode",
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yicLionel/pi-for-vscode.git"
+  },
+  "homepage": "https://github.com/yicLionel/pi-for-vscode#readme",
+  "bugs": {
+    "url": "https://github.com/yicLionel/pi-for-vscode/issues"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "AI",
+    "Other"
+  ],
+  "keywords": [
+    "pi",
+    "agent",
+    "tui",
+    "terminal",
+    "sidebar",
+    "ai"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onView:pi-for-vscode.sidebar",
+    "onCommand:pi-for-vscode.open",
+    "onCommand:pi-for-vscode.newTerminal",
+    "onCommand:pi-for-vscode.sendSelection",
+    "onCommand:pi-for-vscode.sendFilePath"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "pi-for-vscode",
+          "title": "Pi",
+          "icon": "media/pi.svg"
+        }
+      ]
+    },
+    "views": {
+      "pi-for-vscode": [
+        {
+          "type": "webview",
+          "id": "pi-for-vscode.sidebar",
+          "name": "Pi",
+          "icon": "media/pi.svg",
+          "contextualTitle": "Pi"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "pi-for-vscode.open",
+        "title": "Focus Pi Sidebar",
+        "category": "Pi",
+        "icon": "$(terminal)"
+      },
+      {
+        "command": "pi-for-vscode.newTerminal",
+        "title": "New Pi Terminal (Editor Tab)",
+        "category": "Pi",
+        "icon": "$(add)"
+      },
+      {
+        "command": "pi-for-vscode.restart",
+        "title": "Restart Pi",
+        "category": "Pi",
+        "icon": "$(debug-restart)"
+      },
+      {
+        "command": "pi-for-vscode.kill",
+        "title": "Kill Pi",
+        "category": "Pi",
+        "icon": "$(close)"
+      },
+      {
+        "command": "pi-for-vscode.clear",
+        "title": "Clear Pi Terminal",
+        "category": "Pi",
+        "icon": "$(clear-all)"
+      },
+      {
+        "command": "pi-for-vscode.sendSelection",
+        "title": "Send Selection to Pi",
+        "category": "Pi",
+        "icon": "$(arrow-right)"
+      },
+      {
+        "command": "pi-for-vscode.sendSelectionAndSubmit",
+        "title": "Send Selection to Pi and Submit",
+        "category": "Pi"
+      },
+      {
+        "command": "pi-for-vscode.sendFilePath",
+        "title": "Send Current File Reference to Pi",
+        "category": "Pi",
+        "icon": "$(file)"
+      },
+      {
+        "command": "pi-for-vscode.pickExecutable",
+        "title": "Set Pi Executable Path...",
+        "category": "Pi"
+      },
+      {
+        "command": "pi-for-vscode.showOutput",
+        "title": "Show Pi Logs",
+        "category": "Pi",
+        "icon": "$(output)"
+      },
+      {
+        "command": "pi-for-vscode.openSettings",
+        "title": "Open Pi Settings",
+        "category": "Pi",
+        "icon": "$(settings-gear)"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "pi-for-vscode.restart",
+          "when": "pi-for-vscode.hasSession"
+        },
+        {
+          "command": "pi-for-vscode.kill",
+          "when": "pi-for-vscode.hasSession"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "pi-for-vscode.sendSelection",
+          "when": "editorHasSelection",
+          "group": "pi@1"
+        },
+        {
+          "command": "pi-for-vscode.sendSelectionAndSubmit",
+          "when": "editorHasSelection",
+          "group": "pi@2"
+        },
+        {
+          "command": "pi-for-vscode.sendFilePath",
+          "group": "pi@3"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "pi-for-vscode.newTerminal",
+          "when": "view == pi-for-vscode.sidebar",
+          "group": "navigation@1"
+        },
+        {
+          "command": "pi-for-vscode.restart",
+          "when": "view == pi-for-vscode.sidebar",
+          "group": "navigation@2"
+        },
+        {
+          "command": "pi-for-vscode.clear",
+          "when": "view == pi-for-vscode.sidebar",
+          "group": "navigation@3"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "pi-for-vscode.sendSelection",
+        "key": "ctrl+alt+p",
+        "mac": "cmd+alt+p",
+        "when": "editorTextFocus && editorHasSelection"
+      }
+    ],
+    "configuration": {
+      "title": "Pi for VS Code",
+      "properties": {
+        "pi-for-vscode.executablePath": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Absolute path to the `pi` executable. Leave empty to auto-detect (PATH, Homebrew, npm global, `~/.local/share/pi-node`)."
+        },
+        "pi-for-vscode.args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "markdownDescription": "Extra command line arguments passed to `pi` on every start, e.g. `[\"--continue\"]` or `[\"--model\", \"anthropic/claude-sonnet-4\"]`."
+        },
+        "pi-for-vscode.autoStart": {
+          "type": "boolean",
+          "default": true,
+          "description": "Start Pi automatically when the sidebar terminal is opened."
+        },
+        "pi-for-vscode.cwd": {
+          "type": "string",
+          "enum": [
+            "workspace",
+            "file",
+            "home",
+            "custom"
+          ],
+          "enumDescriptions": [
+            "Workspace root of the active editor",
+            "Directory of the active file",
+            "Home directory",
+            "Custom directory (see pi-for-vscode.customCwd)"
+          ],
+          "default": "workspace",
+          "description": "Working directory used when Pi starts."
+        },
+        "pi-for-vscode.customCwd": {
+          "type": "string",
+          "default": "",
+          "description": "Custom working directory used when pi-for-vscode.cwd is set to \"custom\"."
+        },
+        "pi-for-vscode.env": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {},
+          "markdownDescription": "Extra environment variables for the Pi process, e.g. `{ \"ANTHROPIC_API_KEY\": \"...\" }`."
+        },
+        "pi-for-vscode.fontFamily": {
+          "type": "string",
+          "default": "",
+          "description": "Terminal font family. Empty follows the editor font."
+        },
+        "pi-for-vscode.fontSize": {
+          "type": "number",
+          "default": 0,
+          "description": "Terminal font size in pixels. 0 follows the editor font size."
+        },
+        "pi-for-vscode.lineHeight": {
+          "type": "number",
+          "default": 0,
+          "description": "Terminal line height multiplier (e.g. 1.2). 0 lets the terminal pick a default."
+        },
+        "pi-for-vscode.cursorBlink": {
+          "type": "boolean",
+          "default": true,
+          "description": "Blink the terminal cursor."
+        },
+        "pi-for-vscode.scrollback": {
+          "type": "number",
+          "default": 10000,
+          "description": "Number of lines kept in the terminal scrollback buffer."
+        },
+        "pi-for-vscode.sendSubmit": {
+          "type": "boolean",
+          "default": false,
+          "description": "Press Enter automatically after sending a selection or file reference to Pi."
+        },
+        "pi-for-vscode.fileLinks": {
+          "type": "boolean",
+          "default": true,
+          "description": "Turn file paths printed by Pi into clickable links (Cmd/Ctrl+click)."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "node scripts/make-icon.mjs && node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "vscode:prepublish": "node scripts/make-icon.mjs && node esbuild.mjs --production",
+    "package": "npm run typecheck && vsce package --allow-missing-repository",
+    "smoke": "node esbuild.mjs && node scripts/smoke.mjs && node scripts/activation-check.cjs",
+    "smoke:webview": "node esbuild.mjs && node scripts/webview-check.mjs",
+    "smoke:electron": "node esbuild.mjs && node scripts/smoke-electron.mjs",
+    "verify:vsix": "node scripts/verify-vsix.mjs",
+    "verify": "npm run typecheck && npm run smoke && npm run smoke:webview && npm run smoke:electron",
+    "test": "npm run verify"
+  },
+  "dependencies": {
+    "@homebridge/node-pty-prebuilt-multiarch": "0.15.0-beta.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.2.1",
+    "@xterm/addon-fit": "^0.11.0",
+    "@xterm/addon-web-links": "^0.12.0",
+    "@xterm/addon-webgl": "^0.19.0",
+    "@xterm/xterm": "^6.0.0",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.7.0"
+  }
+}

@@ -1,0 +1,15 @@
+node_modules/
+dist/
+*.vsix
+.DS_Store
+
+# Build outputs for the webview bundle
+media/main.js
+media/main.js.map
+media/main.css
+media/main.css.map
+media/icon.png
+
+# Local planning notes
+task_plan.md
+notes.md
