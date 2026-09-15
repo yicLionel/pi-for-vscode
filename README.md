@@ -74,7 +74,8 @@ shasum -a 256 -c SHA256SUMS.txt
 **2. Install it**
 
 ```bash
-code --install-extension pi-for-vscode-0.1.0.vsix
+# from the directory you downloaded it into
+code --install-extension pi-for-vscode-*.vsix
 ```
 
 Then reload the window (<kbd>⌘⇧P</kbd> → *Developer: Reload Window*).
@@ -87,7 +88,7 @@ cd pi-for-vscode
 npm install
 npm run compile
 # press F5 in VS Code, or:
-npm run package && code --install-extension pi-for-vscode-0.1.0.vsix
+npm run package && code --install-extension pi-for-vscode-*.vsix
 ```
 
 ## Quick start
@@ -309,7 +310,8 @@ Built on [Pi](https://pi.dev), [xterm.js](https://xtermjs.org) and
 **2. 安装**
 
 ```bash
-code --install-extension pi-for-vscode-0.1.0.vsix
+# 在你下载 VSIX 的目录下执行
+code --install-extension pi-for-vscode-*.vsix
 ```
 
 然后重载窗口（<kbd>⌘⇧P</kbd> → *Developer: Reload Window*）。
@@ -321,7 +323,7 @@ git clone https://github.com/yicLionel/pi-for-vscode.git
 cd pi-for-vscode
 npm install && npm run compile
 # 然后在 VS Code 里按 F5，或者：
-npm run package && code --install-extension pi-for-vscode-0.1.0.vsix
+npm run package && code --install-extension pi-for-vscode-*.vsix
 ```
 
 ## 快速开始

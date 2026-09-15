@@ -2,7 +2,7 @@
   "name": "pi-for-vscode",
   "displayName": "Pi for VS Code",
   "description": "Run the Pi coding agent TUI in the VS Code sidebar or in an editor tab.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "yicLionel",
   "license": "MIT",
   "icon": "media/icon.png",

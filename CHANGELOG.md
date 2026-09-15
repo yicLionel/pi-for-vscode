@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.1
+
+- Fix: a late terminal chunk arriving after Pi exited could flip the UI back to
+  "running" and hide the *Pi exited* overlay.
+- Fix: the PTY smoke test intermittently lost the last line of output, which made
+  the ubuntu CI job flaky.
+- CI now also publishes a GitHub Release (VSIX + `SHA256SUMS.txt`) on tag push.
+
 ## 0.1.0
 
 - Initial release.
