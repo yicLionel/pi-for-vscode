@@ -176,6 +176,29 @@ Three problems were worth solving properly:
 
 Smaller details that matter: the webview clipboard goes through `vscode.env.clipboard`; terminal colours come from `--vscode-terminal-ansi*` CSS variables and are re-read on theme changes; and OS-level shortcuts are handed back to VS Code so <kbd>⌘P</kbd> and <kbd>F1</kbd> keep working.
 
+## Extras
+
+### Pikachu TUI header
+
+[`pi-extensions/pikachu-header.ts`](pi-extensions/pikachu-header.ts) is a small
+[Pi](https://pi.dev) extension that replaces Pi's built-in startup banner with a
+pixel-art Pikachu, the way [OpenClaw](https://openclaw.ai)'s homepage leads with a
+mascot.
+
+```bash
+mkdir -p ~/.pi/agent/extensions
+curl -fsSL -o ~/.pi/agent/extensions/pikachu-header.ts \
+  https://raw.githubusercontent.com/yicLionel/pi-for-vscode/main/pi-extensions/pikachu-header.ts
+```
+
+Then run `/reload` in Pi (or start a new session). It shows up in the sidebar too,
+since the sidebar runs the same TUI. `/pikachu` toggles back to the built-in header.
+
+The sprite is a 36x28 pixel grid, rendered with half-block characters so one
+character cell carries two pixel rows and the proportions survive a terminal cell
+that is twice as tall as it is wide. It uses 24-bit colour where available and falls
+back to the xterm-256 cube.
+
 ## Troubleshooting
 
 **"Pi could not start"** — click *Show logs*. The output channel records the resolved executable, interpreter, working directory and pid. `Pi: Set Pi Executable Path…` fixes most cases.
@@ -376,6 +399,26 @@ npm run package && code --install-extension pi-for-vscode-*.vsix
 3. **环境隔离。** 如果 VS Code 本身是从 Pi 会话里启动的，扩展宿主会继承 `PI_SESSION_ID`、`PI_SESSION_FILE` 等变量；把它们传给子进程 `pi` 会污染其会话管理，所以启动前会剥离。
 
 细节上：webview 的复制粘贴走 `vscode.env.clipboard`；终端配色取自 `--vscode-terminal-ansi*` CSS 变量并在主题变化时重新读取；系统级快捷键交还给 VS Code，保证 <kbd>⌘P</kbd>、<kbd>F1</kbd> 仍然可用。
+
+## 附赠
+
+### 皮卡丘 TUI 首页
+
+[`pi-extensions/pikachu-header.ts`](pi-extensions/pikachu-header.ts) 是一个很小的
+[Pi](https://pi.dev) 扩展，把 Pi 内置的启动横幅换成像素画皮卡丘，形式参考
+[OpenClaw](https://openclaw.ai) 首页那种「大吉祥物」开场。
+
+```bash
+mkdir -p ~/.pi/agent/extensions
+curl -fsSL -o ~/.pi/agent/extensions/pikachu-header.ts \
+  https://raw.githubusercontent.com/yicLionel/pi-for-vscode/main/pi-extensions/pikachu-header.ts
+```
+
+然后在 Pi 里执行 `/reload`（或开个新会话）。侧边栏里同样生效，因为它跑的就是同一个 TUI。
+用 `/pikachu` 可以随时切回内置横幅。
+
+精灵是 36x28 的像素网格，用半格方块渲染，一个字符格承载两行像素，这样在「宽高比 1:2」的
+终端字符格里比例不会拉伸。有真彩色时用真彩色，否则降级到 xterm-256。
 
 ## 排查
 

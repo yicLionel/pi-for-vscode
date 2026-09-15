@@ -3,6 +3,7 @@
 src/**
 scripts/**
 docs/**
+pi-extensions/**
 task_plan.md
 notes.md
 tsconfig.json
