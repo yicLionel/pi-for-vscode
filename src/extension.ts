@@ -180,6 +180,43 @@ export function activate(context: vscode.ExtensionContext): void {
     await vscode.commands.executeCommand('workbench.action.openSettings', '@ext:pi-for-vscode pi-for-vscode');
   });
 
+  // Start a fresh conversation inside the TUI window via pi's `/new`, rather than
+  // opening another VS Code tab.
+  register('pi-for-vscode.newConversation', () => {
+    const target = registry.getTarget();
+    if (!target) {
+      void sidebar.focus();
+      return;
+    }
+    target.sendCommand('/new');
+  });
+
+  // Open pi's conversation history picker in the TUI (`/resume`), so switching
+  // conversations lists past ones instead of just cycling windows.
+  register('pi-for-vscode.switchConversation', () => {
+    const target = registry.getTarget();
+    if (!target) {
+      void sidebar.focus();
+      return;
+    }
+    target.sendCommand('/resume');
+  });
+
+  // Cycle focus through the Pi session windows (sidebar + editor tabs).
+  // Palette-only: the sidebar toolbar slot is used by switchConversation.
+  register('pi-for-vscode.switchSession', async () => {
+    const sessions = registry.all();
+    if (sessions.length < 2) {
+      await sidebar.focus();
+      return;
+    }
+    const current = sessions.findIndex((session) => session.id === registry.getActive()?.id);
+    const next = sessions[(current + 1) % sessions.length];
+    registry.setActive(next.id);
+    if (next.kind === 'sidebar') await sidebar.focus();
+    else next.focus();
+  });
+
   // ---------------------------------------------------------- configuration
 
   context.subscriptions.push(

@@ -66,10 +66,16 @@
         "icon": "$(terminal)"
       },
       {
+        "command": "pi-for-vscode.newConversation",
+        "title": "New Pi Conversation (in the TUI)",
+        "category": "Pi",
+        "icon": "$(add)"
+      },
+      {
         "command": "pi-for-vscode.newTerminal",
         "title": "New Pi Terminal (Editor Tab)",
         "category": "Pi",
-        "icon": "$(add)"
+        "icon": "$(multiple-windows)"
       },
       {
         "command": "pi-for-vscode.restart",
@@ -122,6 +128,18 @@
         "title": "Open Pi Settings",
         "category": "Pi",
         "icon": "$(settings-gear)"
+      },
+      {
+        "command": "pi-for-vscode.switchConversation",
+        "title": "Switch Pi Conversation (History)",
+        "category": "Pi",
+        "icon": "$(history)"
+      },
+      {
+        "command": "pi-for-vscode.switchSession",
+        "title": "Cycle Pi Session Windows",
+        "category": "Pi",
+        "icon": "$(arrow-swap)"
       }
     ],
     "menus": {
@@ -153,7 +171,7 @@
       ],
       "view/title": [
         {
-          "command": "pi-for-vscode.newTerminal",
+          "command": "pi-for-vscode.newConversation",
           "when": "view == pi-for-vscode.sidebar",
           "group": "navigation@1"
         },
@@ -166,6 +184,16 @@
           "command": "pi-for-vscode.clear",
           "when": "view == pi-for-vscode.sidebar",
           "group": "navigation@3"
+        },
+        {
+          "command": "pi-for-vscode.switchConversation",
+          "when": "view == pi-for-vscode.sidebar",
+          "group": "navigation@4"
+        },
+        {
+          "command": "pi-for-vscode.newTerminal",
+          "when": "view == pi-for-vscode.sidebar",
+          "group": "navigation@5"
         }
       ]
     },
@@ -175,6 +203,11 @@
         "key": "ctrl+alt+p",
         "mac": "cmd+alt+p",
         "when": "editorTextFocus && editorHasSelection"
+      },
+      {
+        "command": "pi-for-vscode.switchConversation",
+        "key": "ctrl+alt+]",
+        "mac": "cmd+alt+]"
       }
     ],
     "configuration": {

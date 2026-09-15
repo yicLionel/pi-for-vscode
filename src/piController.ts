@@ -184,6 +184,18 @@ export class PiController implements vscode.Disposable {
     this.focus();
   }
 
+  /**
+   * Runs a pi slash command as if it had been typed, so the TUI handles it in
+   * place — e.g. `/new` starts a fresh conversation in this same window instead
+   * of spawning another one.
+   */
+  sendCommand(command: string): void {
+    if (!command) return;
+    this.forceStart = true;
+    this.write(`${command}\r`);
+    this.focus();
+  }
+
   applySettings(): void {
     this.settings = readSettings();
     this.post({ type: 'settings', settings: webviewSettings(this.settings) });
