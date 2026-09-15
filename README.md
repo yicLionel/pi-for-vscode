@@ -178,44 +178,26 @@ Smaller details that matter: the webview clipboard goes through `vscode.env.clip
 
 ## Extras
 
-### Header art (pixel art or a real image)
+### Pikachu TUI header
 
-[`pi-extensions/header-art.ts`](pi-extensions/header-art.ts) is a small
-[Pi](https://pi.dev) extension that replaces Pi's built-in startup banner, the way
-[OpenClaw](https://openclaw.ai)'s homepage leads with a mascot.
+[`pi-extensions/pikachu-header.ts`](pi-extensions/pikachu-header.ts) is a small
+[Pi](https://pi.dev) extension that replaces Pi's built-in startup banner with a
+pixel-art Pikachu, the way [OpenClaw](https://openclaw.ai)'s homepage leads with a
+mascot.
 
 ```bash
 mkdir -p ~/.pi/agent/extensions
-curl -fsSL -o ~/.pi/agent/extensions/header-art.ts \
-  https://raw.githubusercontent.com/yicLionel/pi-for-vscode/main/pi-extensions/header-art.ts
+curl -fsSL -o ~/.pi/agent/extensions/pikachu-header.ts \
+  https://raw.githubusercontent.com/yicLionel/pi-for-vscode/main/pi-extensions/pikachu-header.ts
 ```
 
 Then run `/reload` in Pi (or start a new session). It shows up in the sidebar too,
-since the sidebar runs the same TUI.
+since the sidebar runs the same TUI. `/pikachu` toggles back to the built-in header.
 
-- `/header` cycles, `/header <name>` picks, `/header list` shows what is available.
-- The choice is remembered in `~/.pi/agent/header-art.json`.
-
-Two kinds of art:
-
-**Pixel art**, rendered with half-block characters so one character cell carries two
-pixel rows and the proportions survive a terminal cell that is twice as tall as it
-is wide. 24-bit colour with an xterm-256 cube fallback. Ships with `pikachu`.
-
-**Real images**, rendered through the terminal's inline-image protocol and not
-pixelated at all. Drop files in a directory that is yours, not the repository's:
-
-```
-~/.pi/agent/header-art/<name>.{png,jpg,jpeg,gif,webp}
-```
-
-Inline images need terminal support. In the VS Code sidebar the extension pins
-`PI_IMAGE_PROTOCOL=iterm2` and the webview loads `@xterm/addon-image`; in a
-terminal, kitty and iTerm2 are auto-detected. Without support an image degrades to
-a text line naming the file.
-
-Keep the files modest: the whole image is base64'd into the escape sequence and
-re-sent whenever the header repaints, so anything over ~1.5 MB falls back to text.
+The sprite is a 36x28 pixel grid, rendered with half-block characters so one
+character cell carries two pixel rows and the proportions survive a terminal cell
+that is twice as tall as it is wide. It uses 24-bit colour where available and falls
+back to the xterm-256 cube.
 
 ## Troubleshooting
 
@@ -420,40 +402,23 @@ npm run package && code --install-extension pi-for-vscode-*.vsix
 
 ## 附赠
 
-### 首页图（像素画或真图）
+### 皮卡丘 TUI 首页
 
-[`pi-extensions/header-art.ts`](pi-extensions/header-art.ts) 是一个很小的
-[Pi](https://pi.dev) 扩展，把 Pi 内置的启动横幅换成你自己选的图，形式参考
+[`pi-extensions/pikachu-header.ts`](pi-extensions/pikachu-header.ts) 是一个很小的
+[Pi](https://pi.dev) 扩展，把 Pi 内置的启动横幅换成像素画皮卡丘，形式参考
 [OpenClaw](https://openclaw.ai) 首页那种「大吉祥物」开场。
 
 ```bash
 mkdir -p ~/.pi/agent/extensions
-curl -fsSL -o ~/.pi/agent/extensions/header-art.ts \
-  https://raw.githubusercontent.com/yicLionel/pi-for-vscode/main/pi-extensions/header-art.ts
+curl -fsSL -o ~/.pi/agent/extensions/pikachu-header.ts \
+  https://raw.githubusercontent.com/yicLionel/pi-for-vscode/main/pi-extensions/pikachu-header.ts
 ```
 
-然后在 Pi 里执行 `/reload`（或开个新会话）。侧边栏同样生效，因为它跑的就是同一个 TUI。
+然后在 Pi 里执行 `/reload`（或开个新会话）。侧边栏里同样生效，因为它跑的就是同一个 TUI。
+用 `/pikachu` 可以随时切回内置横幅。
 
-- `/header` 循环切换，`/header <名字>` 指定，`/header list` 列出可用的。
-- 选择记在 `~/.pi/agent/header-art.json`，重启后仍在。
-
-两种图：
-
-**像素画** —— 用半格方块渲染，一个字符格承载两行像素，这样在「宽高比 1:2」的终端字符格里
-比例不会拉伸。有真彩色用真彩色，否则降级到 xterm-256。内置一个 `pikachu`。
-
-**真图** —— 走终端的 inline image 协议，**不做像素化**。文件放在你自己的目录里，
-而不是仓库里：
-
-```
-~/.pi/agent/header-art/<名字>.{png,jpg,jpeg,gif,webp}
-```
-
-真图需要终端支持：VS Code 侧边栏里扩展会固定 `PI_IMAGE_PROTOCOL=iterm2`，webview 加载
-`@xterm/addon-image`；普通终端里 kitty / iTerm2 会自动探测。不支持时降级成一行文字说明。
-
-图片别太大：整份数据会被 base64 塞进转义序列，并且每次 header 重绘都会重发，所以超过约
-1.5 MB 会退化成文字。
+精灵是 36x28 的像素网格，用半格方块渲染，一个字符格承载两行像素，这样在「宽高比 1:2」的
+终端字符格里比例不会拉伸。有真彩色时用真彩色，否则降级到 xterm-256。
 
 ## 排查
 
