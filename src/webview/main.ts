@@ -1,4 +1,5 @@
 import { FitAddon } from '@xterm/addon-fit';
+import { ImageAddon } from '@xterm/addon-image';
 import { WebLinksAddon } from '@xterm/addon-web-links';
 import { WebglAddon } from '@xterm/addon-webgl';
 import { ILink, ITerminalOptions, ITheme, Terminal } from '@xterm/xterm';
@@ -122,6 +123,10 @@ const terminal = new Terminal({
 
 const fitAddon = new FitAddon();
 terminal.loadAddon(fitAddon);
+
+// Renders inline images (iTerm2 protocol) that the Pi TUI emits — used by the
+// header-art extension when an art is a real image rather than pixel art.
+terminal.loadAddon(new ImageAddon());
 
 terminal.loadAddon(
   new WebLinksAddon((event, uri) => {

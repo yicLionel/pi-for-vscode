@@ -19,6 +19,7 @@ const INHERITED_PI_ENV = [
   'PI_REASONING_LEVEL',
   'PI_EXECUTABLE',
   'PI_OFFLINE',
+  'PI_IMAGE_PROTOCOL',
 ];
 
 export class PiNotFoundError extends Error {
@@ -409,6 +410,11 @@ export class PiController implements vscode.Disposable {
     env.FORCE_COLOR = '1';
     env.PWD = cwd;
     if (!env.LANG) env.LANG = 'en_US.UTF-8';
+    // Inline images: xterm.js renders them through @xterm/addon-image, which
+    // speaks the iTerm2 protocol. pi's auto-detection cannot work here because
+    // the capability queries go unanswered, so pin it. An explicit override in
+    // `pi-for-vscode.env` still wins (applied below).
+    env.PI_IMAGE_PROTOCOL = 'iterm2';
     for (const [key, value] of Object.entries(settings.env ?? {})) {
       if (typeof value === 'string') env[key] = value;
     }
