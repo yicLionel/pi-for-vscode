@@ -99,6 +99,27 @@ function connect(url, timeoutMs = 15000) {
  * Launches headless Chrome and returns a page session ready to navigate.
  * Returns undefined when no Chromium-based browser is installed.
  */
+/**
+ * Removes Chrome's throwaway profile directory.
+ *
+ * Chrome's renderer/GPU helper processes can keep writing into the profile for a
+ * moment after the parent is killed, which makes rmSync fail with ENOTEMPTY —
+ * observed as a macOS CI failure on an otherwise fully green run. A leftover temp
+ * directory is harmless, so retry briefly and then give up rather than throwing.
+ */
+export function removeProfile(dir) {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    try {
+      fs.rmSync(dir, { recursive: true, force: true });
+      return;
+    } catch {
+      // Sync sleep: this also runs from a process 'exit' handler, where nothing
+      // asynchronous would ever get a chance to run.
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 100);
+    }
+  }
+}
+
 export async function launchChrome({ width = 900, height = 600, args = [] } = {}) {
   const browser = findBrowser();
   if (!browser) return undefined;
@@ -131,7 +152,7 @@ export async function launchChrome({ width = 900, height = 600, args = [] } = {}
     } catch {
       // ignore
     }
-    fs.rmSync(profileDir, { recursive: true, force: true });
+    removeProfile(profileDir);
   };
 
   let devtoolsUrl;

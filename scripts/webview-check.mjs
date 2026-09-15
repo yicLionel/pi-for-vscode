@@ -13,6 +13,7 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { removeProfile } from './lib/cdp.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const harness = path.join(root, 'scripts', 'webview-harness.html');
@@ -144,7 +145,7 @@ function cleanup() {
   } catch {
     // ignore
   }
-  fs.rmSync(profileDir, { recursive: true, force: true });
+  removeProfile(profileDir);
 }
 process.on('exit', cleanup);
 
@@ -262,11 +263,19 @@ try {
     console.error(`posted message types: ${JSON.stringify(findings.postedTypes)}\n`);
   }
 
-  cleanup();
-  process.exit(failed === 0 ? 0 : 1);
-} catch (error) {
-  console.error('  ✗ webview check crashed:', error);
+  // Decide the verdict before cleanup. Failing to delete Chrome's temp profile is
+  // not a reason to turn a fully green run red.
+  const exitCode = failed === 0 ? 0 : 1;
   client?.close();
   cleanup();
+  process.exit(exitCode);
+} catch (error) {
+  console.error('  ✗ webview check crashed:', error);
+  try {
+    client?.close();
+    cleanup();
+  } catch {
+    // ignore — cleanup must never mask the real failure
+  }
   process.exit(1);
 }
