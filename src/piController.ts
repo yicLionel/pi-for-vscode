@@ -369,7 +369,9 @@ export class PiController implements vscode.Disposable {
   }
 
   private handleData(data: string): void {
-    if (this.state !== 'running') this.setState('running');
+    // node-pty can deliver a trailing data chunk after `exit` has fired. That must
+    // still be shown, but it must not resurrect a dead session's state.
+    if (this.state !== 'running' && this.session.alive) this.setState('running');
     this.post({ type: 'data', data });
   }
 

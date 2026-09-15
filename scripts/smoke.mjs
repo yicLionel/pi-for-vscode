@@ -61,6 +61,24 @@ function spawnShell(script, cols, rows) {
   return { session, chunks, exit };
 }
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * node-pty can emit `exit` before the final data chunk has been delivered — the
+ * pty master read and the waitpid callback race, and which one wins differs by
+ * platform. Give the stream a moment to drain before asserting on it, otherwise
+ * the last line of output is intermittently missing.
+ */
+async function drain(chunks, predicate, timeoutMs = 5000) {
+  const deadline = Date.now() + timeoutMs;
+  let output = chunks.join('');
+  while (!predicate(output) && Date.now() < deadline) {
+    await sleep(25);
+    output = chunks.join('');
+  }
+  return output;
+}
+
 console.log('\nPi for VS Code — smoke tests\n');
 
 // ------------------------------------------------------------------ pure logic
@@ -111,7 +129,7 @@ if (hasPosixShell) {
       30,
     );
     const result = await exit;
-    const output = chunks.join('');
+    const output = await drain(chunks, (o) => /TTY_YES/.test(o) && /\u001b\[31mred/.test(o));
     assert.equal(result.exitCode, 0);
     assert.match(output, /TTY_YES/, `expected a TTY, got ${JSON.stringify(output)}`);
     assert.match(output, /\u001b\[31mred/, 'expected ANSI colour sequences to pass through');
@@ -124,7 +142,7 @@ if (hasPosixShell) {
     setTimeout(() => session.write('hello\r'), 200);
     const result = await exit;
 
-    const output = chunks.join('');
+    const output = await drain(chunks, (o) => /PONG:hello/.test(o) && /50 120/.test(o));
     assert.equal(result.exitCode, 0);
     assert.match(output, /PONG:hello/);
     assert.match(output, /50 120/, `expected the resized geometry, got ${JSON.stringify(output)}`);
@@ -153,7 +171,9 @@ if (piPath) {
     });
 
     const result = await exit;
-    const output = chunks.join('').replace(/\u001b\[[0-9;]*m/g, '').trim();
+    const strip = (value) => value.replace(/\u001b\[[0-9;]*m/g, '');
+    const raw = await drain(chunks, (o) => /\d+\.\d+\.\d+/.test(strip(o)), 15000);
+    const output = strip(raw).trim();
     assert.equal(result.exitCode, 0, `pi --version exited with ${result.exitCode}: ${output}`);
     assert.match(output, /\d+\.\d+\.\d+/, `unexpected version output: ${JSON.stringify(output)}`);
     console.log(`      -> pi ${output.split('\n').pop()}`);
