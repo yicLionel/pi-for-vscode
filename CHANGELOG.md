@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.1.2
+
+- New: **New Pi Conversation (in the TUI)** starts a fresh conversation in the
+  sidebar window by sending `/new`, instead of opening another editor tab. The
+  sidebar toolbar's `+` button now does this.
+- New: **Switch Pi Conversation (History)** opens pi's own conversation history
+  picker via `/resume` (folder/all scope, search, rename, delete).
+- New: **Cycle Pi Session Windows** moves focus through the sidebar and any
+  editor-tab sessions. Palette only.
+- `New Pi Terminal (Editor Tab)` keeps its command but moves to the end of the
+  sidebar toolbar with a distinct icon.
+
 ## 0.1.1
 
 - Fix: a late terminal chunk arriving after Pi exited could flip the UI back to
